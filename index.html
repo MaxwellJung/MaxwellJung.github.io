@@ -1,1 +1,35 @@
-<!DOCTYPE html><html>	<html lang="en">	<head>		<title>Tree reacting to Wind</title>	</head>	<body>		<h1 style="text-align:center;">Tree reacting to Wind</h1>		<p style="text-align:center;">CS 180 Maxwell Jung UCSB 2021</p>		<h3>Description</h3>		<p>The scene shows a dummy with a leaf blower walking through a forest. The leaves sway at different frequency/magnitude depending on their distance and orientation to the leaf blower. The leaf blower can also shake fruits off the trees.</p>		<p><img src="Image_0.png" /></p>		<p><img src="Image_1.png" /></p>		<p><img src="Image_2.png" /></p>		<p><img src="Image_3.png" /></p>		<iframe width="1300" height="775" src="https://www.youtube.com/embed/PkNsg3UXEJQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>		<h3>Keybinds</h3>		<p>The dummy can move horizontally using the standard WASD keys and vertically using space bar and left control key. Pressing F toggles the camera between first person view and third person view. The third person camera is fixed at the center of the world and follows the dummy.</p>		<h3>Hierarchical Modeling + Keyframe animation</h3>		<p>The dummy has a walking animation when it moves around the world. This is achieved by setting the angle of each joint of the dummy using  hierarchical modeling. For smooth animation, the changes in joint angles have to be continuous over time. However, specifying a continuous function for each joint angle is tedious and impractical, so keyframe animation is used. Keyframe animation works by taking a snapshot of the animation (called keyframe) at regular intervals and interpolating the animation between adjacent keyframes. For the walking animation of the dummy, the keyframes were extracted every 10 frames from a reference video of a person walking (Resource 1). The angles of each joint in the keyframe were measured then interpolated using Centripetal Catmull–Rom spline (Resource 2).</p>		<h3>Physics based Tree animation</h3>		<p>The animation of the leaves blowing is done by deforming part of the leaves mesh in the vertex shader (Resource 3). The vertex of the mesh affected by the wind gets translated in the direction of its normal vector. This translation is sinusoidal as a function of time to achieve a swaying effect. The magnitude of the sway is affected by distance from leaf blower, angle from leaf blower, and orientation of the leaves. For example, if the leaf is perpendicular to the wind, it catches more wind and sways further. The frequency of sway is affected by the orientation of the leaves.</p>		<h3>Resources</h3>		<ol>			<li><u><a href="https://www.youtube.com/watch?v=vq9A5FD8G5w" rel="nofollow">Reference Video of Walking Animation</a></u></li>			<li><u><a href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline" rel="nofollow">Centripetal Catmull-Rom spline interpolation</a></u></li>			<li><u><a href="http://developer.download.nvidia.com/CgTutorial/cg_tutorial_chapter06.html" rel="nofollow">Vertex Mesh Deformation</a></u></li>		</ol>	</body></html>
+<!DOCTYPE html>
+<html>
+	<html lang="en">
+	<head>
+		<title>Tree reacting to Wind</title>
+	</head>
+	<body>
+		<h1 style="text-align:center;">Tree reacting to Wind</h1>
+		<p style="text-align:center;">CS 180 Maxwell Jung UCSB 2021</p>
+    <a href="https://github.com/MaxwellJung/CS180-Final">GitHub Repository</a>
+		<h3>Description</h3>
+		<p>The scene shows a dummy with a leaf blower walking through a forest. The leaves sway at different frequency/magnitude depending on their distance and orientation to the leaf blower. The leaf blower can also shake fruits off the trees.</p>
+		<p><img src="Image_0.png" /></p>
+		<p><img src="Image_1.png" /></p>
+		<p><img src="Image_2.png" /></p>
+		<p><img src="Image_3.png" /></p>
+
+		<iframe width="1300" height="775" src="https://www.youtube.com/embed/PkNsg3UXEJQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+		<h3>Keybinds</h3>
+		<p>The dummy can move horizontally using the standard WASD keys and vertically using space bar and left control key. Pressing F toggles the camera between first person view and third person view. The third person camera is fixed at the center of the world and follows the dummy.</p>
+
+		<h3>Hierarchical Modeling + Keyframe animation</h3>
+		<p>The dummy has a walking animation when it moves around the world. This is achieved by setting the angle of each joint of the dummy using  hierarchical modeling. For smooth animation, the changes in joint angles have to be continuous over time. However, specifying a continuous function for each joint angle is tedious and impractical, so keyframe animation is used. Keyframe animation works by taking a snapshot of the animation (called keyframe) at regular intervals and interpolating the animation between adjacent keyframes. For the walking animation of the dummy, the keyframes were extracted every 10 frames from a reference video of a person walking (Resource 1). The angles of each joint in the keyframe were measured then interpolated using Centripetal Catmull–Rom spline (Resource 2).</p>
+
+		<h3>Physics based Tree animation</h3>
+		<p>The animation of the leaves blowing is done by deforming part of the leaves mesh in the vertex shader (Resource 3). The vertex of the mesh affected by the wind gets translated in the direction of its normal vector. This translation is sinusoidal as a function of time to achieve a swaying effect. The magnitude of the sway is affected by distance from leaf blower, angle from leaf blower, and orientation of the leaves. For example, if the leaf is perpendicular to the wind, it catches more wind and sways further. The frequency of sway is affected by the orientation of the leaves.</p>
+		<h3>Resources</h3>
+		<ol>
+			<li><u><a href="https://www.youtube.com/watch?v=vq9A5FD8G5w" rel="nofollow">Reference Video of Walking Animation</a></u></li>
+			<li><u><a href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline" rel="nofollow">Centripetal Catmull-Rom spline interpolation</a></u></li>
+			<li><u><a href="http://developer.download.nvidia.com/CgTutorial/cg_tutorial_chapter06.html" rel="nofollow">Vertex Mesh Deformation</a></u></li>
+		</ol>
+	</body>
+</html>
