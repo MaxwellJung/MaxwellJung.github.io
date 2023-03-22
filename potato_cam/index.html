@@ -39,7 +39,8 @@
                 camera module will capture the image, and the TFT LCD will preview the captured image.
                 The user can press the blue button on the Nucleo to save the previewed image to the microSD card.<br>
                 <br>
-                Please checkout <a style="color: #ffffff" href="https://docs.google.com/document/d/1Y-6W0VbkQ8YlGxMPUpiDT1RKF69tAs_D-iyPE2VbVmQ/edit?usp=sharing">written report</a> for details.
+                Please checkout <a style="display: inline; color: #ff00ff"
+                href="https://docs.google.com/document/d/1Y-6W0VbkQ8YlGxMPUpiDT1RKF69tAs_D-iyPE2VbVmQ/edit?usp=sharing">written report</a>for details.
             </p>
 
             <h2>Challenges and Reflection</h2>
@@ -63,8 +64,8 @@
             reading/writing image data using SPI. Apparently, the default SPI timings 
             on STM boards are not recognized by Arducam’s proprietary SPI/I2C IC chip used
             to communicate with the OV2640 sensor. (see
-            <a style="display: inline;" href="https://github.com/ArduCAM/STM32/issues/2">issue #2</a> and 
-            <a style="display: inline;" href="https://github.com/ArduCAM/Arduino/issues/127">issue #127</a>.)
+            <a style="display: inline; color: #b5601b" href="https://github.com/ArduCAM/STM32/issues/2">issue #2</a> and 
+            <a style="display: inline; color: #b5601b" href="https://github.com/ArduCAM/Arduino/issues/127">issue #127</a>)
             
             The suspected reason for this behavior is the abnormally large timing delay between each data frame sent by STM’s SPI protocol. The suspected solution 
             (though I didn’t have the time to test it) is “data packing” where DMA is used to saturate the internal SPI FIFOs. 
