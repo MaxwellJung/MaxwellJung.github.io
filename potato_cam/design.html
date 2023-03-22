@@ -17,11 +17,52 @@
         </ul>
         <div class="section-2">
             <h2>Design</h2>
-            <img src="/MaxwellJung.github.io/potato_camera/Media/block_diagram.png" height="350"><br>
+            <img src="/MaxwellJung.github.io/potato_cam/Media/block_diagram.png" height="350"><br>
             <p> Serial Interface Protocols used:</p>
                  ● SPI (camera to Arduino, display, and microSD)
             <br> ● UART (Arduino to STM)
             <br> ● I2C (camera sensor, delegated by Arduino)
+            <br><br>
+            <img src="/MaxwellJung.github.io/potato_cam/Media/hardware_setup_photos/IMG_1596.jpg" height="350"><br>
+            
+
+
+            <h2 style="font-size: 22px">Pins used:</h2>
+             Arducam -> Arduino (SPI, I2C)
+            <br>CS (grey) - 7
+            <br>MOSI (purple) - 11
+            <br>MISO (blue) - 12
+            <br>SCK (green) - 13
+            <br>GND (blue) - GND
+            <br>VCC (yellow) - 5V
+            <br>SDA (green) - SDA
+            <br>SCL (white) - SCL
+            <br> 
+            <img src="/MaxwellJung.github.io/potato_cam/Media/hardware_setup_photos/IMG_1595.jpg" height="350"><br>
+            <br>Arduino -> Nucleo (USART)
+            <br>TX (green) -> voltage divider -> PB7 (orange)
+            <br>RX (blue) -> PB6 (white)
+            <br>
+            <img src="/MaxwellJung.github.io/potato_cam/Media/hardware_setup_photos/IMG_1597.jpg" height="350"><br>
+            <br>SD card -> Nucleo (SPI)
+            <br>CS (yellow) - PA15
+            <br>SCK (orange) - PC10
+            <br>MOSI (red) - PC12
+            <br>MISO (brown) - PC11
+            <br>VCC (red) - 5V
+            <br>GND (black) - GND
+            <br>
+            <img src="/MaxwellJung.github.io/potato_cam/Media/hardware_setup_photos/IMG_1599.jpg" height="350"><br>
+            <br>LCD -> Nucleo (SPI)
+            <br>VDD (red) - 5V
+            <br>GND (black) - GND
+            <br>CS (yellow) - PA4
+            <br>RST (orange) - PA8
+            <br>DC (blue) - PA10
+            <br>MOSI (green) - PB5
+            <br>SCK (white) - PB3
+            <br>LED (red) - 5V
+            <br>SDO(MISO) (green) - PB4
         </div>
     </div>
 </body>
