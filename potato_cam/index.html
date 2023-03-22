@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" 
+        integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <title>UCSB ECE153B Final Project</title>
+</head>
+
+<body>
+    <div class="grid-2">
+        <ul class="Navbar">
+            <li>
+                <a style="color: #ffffff" href="design.html" >Design</a>
+                <a style="color: #ffffff" href="components.html" >Components</a>
+            </li>
+        </ul>
+        <div class="section-1">
+            
+            <i class="fas fa-2x white">UCSB ECE153B Final Project</i><br>
+            <i class="fas fa-2x white">Digital Camera</i><p> <br>Maxwell Jung and Baron Young</p>
+            <video width="320*1.5" height="240" controls>
+                <source src="/MaxwellJung.github.io/potato_cam/Media/test_walkthrough_video.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+              </video><br>
+             <a href="https://github.com/UCSB-Maxwell-Jung/ECE153B"><i class="fab fa-github"></i></a>
+
+        </div><br>
+        <p class="p1">Take a look at our git hub above or track the progress <a style="color: #ffffff" 
+            href="https://github.com/UCSB-Maxwell-Jung/ECE153B/pulls?q=is%3Apr+label%3Afinal">here</a>.</p>
+        <img src="/MaxwellJung.github.io/potato_cam/Media/potato_IMG_top.jpg" height="450"><br>
+        <div class="section-2">
+            <h2>Overview</h2>
+            <p> Create a digital camera capable of capturing and saving a photograph. A pre-made
+                camera module will capture the image, and TFT LCD will preview the captured image in real
+                time. The user can press a button (either on the touchscreen LCD, pushbutton on Nucleo board,
+                or clicking rotary encoder) to save the previewed image to the microSD card.</p>
+
+            <h2>Challenges and Reflection</h2>
+            <p>
+            <h2 style="font-size: 20px">Porting Arduino drivers to Nucleo:</h2>
+            Arduino uses C++ to conveniently abstract hardware into objects. 
+            This object oriented approach allows similar hardware to abstractly 
+            share code using inheritance and virtual functions. For example, any 
+            device that can print text inherits the printer class which lets those 
+            objects call write()/print() method. Every arduino driver we used called 
+            the write/print method at some point to send some data to a peripheral 
+            (ie. Serial.print(), lcd.print(), spi.write(), etc). Properly configuring 
+            the inheritances and reimplementing nearly all hardware specific functions 
+            to match Arduino behavior was a major challenge. Some of the functions in 
+            Arduino couldn’t be translated to Nucleo due to physical hardware 
+            differences, in which case we had to mix and match different functions according 
+            to the STM reference manual.</p>
+
+            <h2 style="font-size: 20px">Arducam SPI issues:</h2>
+            Arducam works by configuring the camera sensor (OV2640) using I2C and 
+            reading/writing image data using SPI. Apparently, the default SPI timings 
+            on STM boards are not recognized by Arducam’s proprietary SPI/I2C IC chip used
+            to communicate with the OV2640 sensor. (see
+            <a style="font-size: 19px" href="https://github.com/ArduCAM/STM32/issues/2">https://github.com/ArduCAM/STM32/issues/2 </a> 
+            <a style="font-size: 19px" href="https://github.com/ArduCAM/Arduino/issues/127">https://github.com/ArduCAM/Arduino/issues/127).</a>
+            The suspected reason for this behavior is the abnormally large timing delay between each data frame sent by STM’s SPI protocol. The suspected solution 
+            (though I didn’t have the time to test it) is “data packing” where DMA is used to saturate the internal SPI FIFOs. 
+            This ensures that the SPI protocol packs adjacent data frames as tight as possible, minimizing the delay between each data frame.
+            Our workaround was to connect Arducam to Arduino and treat the Arducam + Arduino as a new module. Abstractly speaking, the 
+            Arducam+Arduino module acted as a black box with UART transmit and receive pins. The transmit pin is used to command the 
+            module to take a photo, and the receive pin is used to retrieve each byte of the image from the start to end. Because we’re 
+            using UART limited to 9000 buad rate to retrieve image data, it takes  around 8 seconds to get a new image into the Nucleo. 
+            Increasing the baud rate beyond 9000 transfers the image faster, but also greatly increases the chance of data loss/image corruption. 
+            Through trial and error, 9000 baud rate was determined to be the ideal baud rate to minimize image corruption.
+            
+            <h2 style="font-size: 20px">Stack overflow:</h2>
+            I encountered a weird bug while testing the SDcard library. For unknown reasons, I could call sd.open() before I enter the lcd.draw() function,
+             but if I called open after entering the draw function, the program would crash. Turns out, the draw() method was allocating just enough local 
+             variables in the call stack that calling open() immediately after entering the function would result in a stack overflow. The solution was to 
+             either move one of the local buffer array into static memory, or to increase the stack size. I chose the later option and increased the stack 
+             size from the default 0x400 to 0x800 in the startup assembly file.
+
+             <h2 style="font-size: 20px">Keil free edition max compilable image size:</h2>
+             The free edition of Keil used for the class limits the maximum size of the compiled program to 32KB. 
+             I encountered this issue early in the project due to the large amount of source code I imported from Arduino drivers. 
+             I also suspect that using C++ instead of C increased program size. 
+             The remedy was to turn on compiler optimization flag -Oz, which reduced the image size by a factor of ~5. 
+             I later reencountered the size limitation when testing the jpeg decoder library, but luckily, 
+             I was able to skip the test and integrated the library straight into the project.
+
+             <h2 style="font-size: 20px">JPEG vs bitmap:</h2>
+              Bitmap is the most intuitive representation of an image since each pixel of the image corresponds to 2 bytes. 
+              However, this makes bitmap files very large, too large to fit into Nucleo’s 128KB SRAM (a 320x240 bitmap image is at least 150KB).
+              JPEG is much much smaller with an average size of 6KB for the same 320x240 image. 
+              This allows the JPEG image to be stored as a contiguous array in memory. 
+              The data from the array is used to write the image file to disk. 
+              The LCD, however, can only display bitmap images. As a result, the JPEG array must be decoded into bitmap before getting
+              displayed on the LCD. Because the entire bitmap array cannot fit into memory,
+              the decoder library decodes the entire JPEG array by decoding smaller blocks.
+            </p>
+            <h2>Contact Info</h2>
+            <p>maxwelljung@ucsb.edu</p>
+            <p>baronyoung@ucsb.edu</p>
+        </div>
+    </div>
+</body>
+</html>
