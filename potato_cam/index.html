@@ -20,29 +20,31 @@
             </li>
         </ul>
         <div class="section-1">
-            
             <i class="fas fa-2x white">UCSB ECE153B Final Project</i><br>
-            <i class="fas fa-2x white">Digital Camera</i><p> <br>Maxwell Jung and Baron Young</p>
+            <i class="fas fa-2x white">Digital Camera - "Potato Cam"</i><p> <br>Maxwell Jung and Baron Young</p>
             <video width="320*1.5" height="240" controls>
-                <source src="/MaxwellJung.github.io/potato_cam/Media/test_walkthrough_video.mp4" type="video/mp4">
+                <source src="Media/test_walkthrough_video.mp4" type="video/mp4">
               Your browser does not support the video tag.
               </video><br>
              <a href="https://github.com/UCSB-Maxwell-Jung/ECE153B"><i class="fab fa-github"></i></a>
 
         </div><br>
-        <p class="p1">Take a look at our git hub above or track the progress <a style="color: #ffffff" 
-            href="https://github.com/UCSB-Maxwell-Jung/ECE153B/pulls?q=is%3Apr+label%3Afinal">here</a>.</p>
-        <img src="/MaxwellJung.github.io/potato_cam/Media/potato_IMG_top.jpg" height="450"><br>
+        <p class="p1"> See <a style="color: #ffffff" 
+            href="https://github.com/UCSB-Maxwell-Jung/ECE153B/pulls?q=is%3Apr+label%3Afinal">pull requests</a> for progress updates.</p>
+        <img src="Media/potato_IMG_top.jpg" height="450"><br>
         <div class="section-2">
             <h2>Overview</h2>
-            <p> Create a digital camera capable of capturing and saving a photograph. A pre-made
-                camera module will capture the image, and TFT LCD will preview the captured image in real
-                time. The user can press a button (either on the touchscreen LCD, pushbutton on Nucleo board,
-                or clicking rotary encoder) to save the previewed image to the microSD card.</p>
+            <p>
+                Create a digital camera capable of capturing and saving a photograph. A pre-made
+                camera module will capture the image, and the TFT LCD will preview the captured image.
+                The user can press the blue button on the Nucleo to save the previewed image to the microSD card.<br>
+                <br>
+                Please checkout <a style="color: #ffffff" href="https://docs.google.com/document/d/1Y-6W0VbkQ8YlGxMPUpiDT1RKF69tAs_D-iyPE2VbVmQ/edit?usp=sharing">written report</a> for details.
+            </p>
 
             <h2>Challenges and Reflection</h2>
-            <p>
             <h2 style="font-size: 20px">Porting Arduino drivers to Nucleo:</h2>
+            <p>
             Arduino uses C++ to conveniently abstract hardware into objects. 
             This object oriented approach allows similar hardware to abstractly 
             share code using inheritance and virtual functions. For example, any 
@@ -54,15 +56,16 @@
             to match Arduino behavior was a major challenge. Some of the functions in 
             Arduino couldn’t be translated to Nucleo due to physical hardware 
             differences, in which case we had to mix and match different functions according 
-            to the STM reference manual.</p>
+            to the STM reference manual.
 
             <h2 style="font-size: 20px">Arducam SPI issues:</h2>
             Arducam works by configuring the camera sensor (OV2640) using I2C and 
             reading/writing image data using SPI. Apparently, the default SPI timings 
             on STM boards are not recognized by Arducam’s proprietary SPI/I2C IC chip used
             to communicate with the OV2640 sensor. (see
-            <a style="font-size: 19px" href="https://github.com/ArduCAM/STM32/issues/2">https://github.com/ArduCAM/STM32/issues/2 </a> 
-            <a style="font-size: 19px" href="https://github.com/ArduCAM/Arduino/issues/127">https://github.com/ArduCAM/Arduino/issues/127).</a>
+            <a href="https://github.com/ArduCAM/STM32/issues/2">issue #2</a> and 
+            <a href="https://github.com/ArduCAM/Arduino/issues/127">issue #127</a>.)
+            
             The suspected reason for this behavior is the abnormally large timing delay between each data frame sent by STM’s SPI protocol. The suspected solution 
             (though I didn’t have the time to test it) is “data packing” where DMA is used to saturate the internal SPI FIFOs. 
             This ensures that the SPI protocol packs adjacent data frames as tight as possible, minimizing the delay between each data frame.
@@ -75,28 +78,28 @@
             
             <h2 style="font-size: 20px">Stack overflow:</h2>
             I encountered a weird bug while testing the SDcard library. For unknown reasons, I could call sd.open() before I enter the lcd.draw() function,
-             but if I called open after entering the draw function, the program would crash. Turns out, the draw() method was allocating just enough local 
-             variables in the call stack that calling open() immediately after entering the function would result in a stack overflow. The solution was to 
-             either move one of the local buffer array into static memory, or to increase the stack size. I chose the later option and increased the stack 
-             size from the default 0x400 to 0x800 in the startup assembly file.
+            but if I called open after entering the draw function, the program would crash. Turns out, the draw() method was allocating just enough local 
+            variables in the call stack that calling open() immediately after entering the function would result in a stack overflow. The solution was to 
+            either move one of the local buffer array into static memory, or to increase the stack size. I chose the later option and increased the stack 
+            size from the default 0x400 to 0x800 in the startup assembly file.
 
-             <h2 style="font-size: 20px">Keil free edition max compilable image size:</h2>
-             The free edition of Keil used for the class limits the maximum size of the compiled program to 32KB. 
-             I encountered this issue early in the project due to the large amount of source code I imported from Arduino drivers. 
-             I also suspect that using C++ instead of C increased program size. 
-             The remedy was to turn on compiler optimization flag -Oz, which reduced the image size by a factor of ~5. 
-             I later reencountered the size limitation when testing the jpeg decoder library, but luckily, 
-             I was able to skip the test and integrated the library straight into the project.
+            <h2 style="font-size: 20px">Keil free edition max compilable image size:</h2>
+            The free edition of Keil used for the class limits the maximum size of the compiled program to 32KB. 
+            I encountered this issue early in the project due to the large amount of source code I imported from Arduino drivers. 
+            I also suspect that using C++ instead of C increased program size. 
+            The remedy was to turn on compiler optimization flag -Oz, which reduced the image size by a factor of ~5. 
+            I later reencountered the size limitation when testing the jpeg decoder library, but luckily, 
+            I was able to skip the test and integrated the library straight into the project.
 
-             <h2 style="font-size: 20px">JPEG vs bitmap:</h2>
-              Bitmap is the most intuitive representation of an image since each pixel of the image corresponds to 2 bytes. 
-              However, this makes bitmap files very large, too large to fit into Nucleo’s 128KB SRAM (a 320x240 bitmap image is at least 150KB).
-              JPEG is much much smaller with an average size of 6KB for the same 320x240 image. 
-              This allows the JPEG image to be stored as a contiguous array in memory. 
-              The data from the array is used to write the image file to disk. 
-              The LCD, however, can only display bitmap images. As a result, the JPEG array must be decoded into bitmap before getting
-              displayed on the LCD. Because the entire bitmap array cannot fit into memory,
-              the decoder library decodes the entire JPEG array by decoding smaller blocks.
+            <h2 style="font-size: 20px">JPEG vs bitmap:</h2>
+            Bitmap is the most intuitive representation of an image since each pixel of the image corresponds to 2 bytes. 
+            However, this makes bitmap files very large, too large to fit into Nucleo’s 128KB SRAM (a 320x240 bitmap image is at least 150KB).
+            JPEG is much much smaller with an average size of 6KB for the same 320x240 image. 
+            This allows the JPEG image to be stored as a contiguous array in memory. 
+            The data from the array is used to write the image file to disk. 
+            The LCD, however, can only display bitmap images. As a result, the JPEG array must be decoded into bitmap before getting
+            displayed on the LCD. Because the entire bitmap array cannot fit into memory,
+            the decoder library decodes the entire JPEG array by decoding smaller blocks.
             </p>
             <h2>Contact Info</h2>
             <p>maxwelljung@ucsb.edu</p>
