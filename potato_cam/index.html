@@ -55,8 +55,8 @@
             (ie. Serial.print(), lcd.print(), spi.write(), etc). Properly configuring 
             the inheritances and reimplementing nearly all hardware specific functions 
             to match Arduino behavior was a major challenge. Some of the functions in 
-            Arduino couldn’t be translated to Nucleo due to physical hardware 
-            differences, in which case we had to mix and match different functions according 
+            Arduino couldn’t be exactly translated to Nucleo due to physical hardware 
+            differences, in which case we had to mix and match different hardware functions according 
             to the STM reference manual.
 
             <h2 style="font-size: 20px">Arducam SPI issues:</h2>
@@ -67,40 +67,40 @@
             <a style="display: inline; color: #b5601b" href="https://github.com/ArduCAM/STM32/issues/2">issue #2</a> and 
             <a style="display: inline; color: #b5601b" href="https://github.com/ArduCAM/Arduino/issues/127">issue #127</a>)
             
-            The suspected reason for this behavior is the abnormally large timing delay between each data frame sent by STM’s SPI protocol. The suspected solution 
-            (though I didn’t have the time to test it) is “data packing” where DMA is used to saturate the internal SPI FIFOs. 
+            The abnormality is suspected to be caused by the timing delay between data frames. The suspected solution 
+            (though we didn’t have the time to implement and test it) is to use DMA to saturate the internal SPI FIFOs. 
             This ensures that the SPI protocol packs adjacent data frames as tight as possible, minimizing the delay between each data frame.
             Our workaround was to connect Arducam to Arduino and treat the Arducam + Arduino as a new module. Abstractly speaking, the 
             Arducam+Arduino module acted as a black box with UART transmit and receive pins. The transmit pin is used to command the 
             module to take a photo, and the receive pin is used to retrieve each byte of the image from the start to end. Because we’re 
-            using UART limited to 9000 buad rate to retrieve image data, it takes  around 8 seconds to get a new image into the Nucleo. 
+            using UART limited to 9000 buad rate to retrieve image data, it takes  around 9 seconds to get a new image into the Nucleo. 
             Increasing the baud rate beyond 9000 transfers the image faster, but also greatly increases the chance of data loss/image corruption. 
             Through trial and error, 9000 baud rate was determined to be the ideal baud rate to minimize image corruption.
             
             <h2 style="font-size: 20px">Stack overflow:</h2>
-            I encountered a weird bug while testing the SDcard library. For unknown reasons, I could call sd.open() before I enter the lcd.draw() function,
-            but if I called open after entering the draw function, the program would crash. Turns out, the draw() method was allocating just enough local 
-            variables in the call stack that calling open() immediately after entering the function would result in a stack overflow. The solution was to 
-            either move one of the local buffer array into static memory, or to increase the stack size. I chose the later option and increased the stack 
+            We encountered a weird bug while testing the SDcard library. For some reason, calling sd.open() after enter the lcd.draw() function crashed the program, 
+            but calling the function before would work fine. Turns out, the lcd.draw() method was allocating just enough local 
+            variables in the call stack that calling sd.open() immediately after entering the function would overflow the stack. The solution was to 
+            either move one of the large local variables into static memory, or to increase the stack size. We chose the later option and increased the stack 
             size from the default 0x400 to 0x800 in the startup assembly file.
 
             <h2 style="font-size: 20px">Keil free edition max compilable image size:</h2>
             The free edition of Keil used for the class limits the maximum size of the compiled program to 32KB. 
-            I encountered this issue early in the project due to the large amount of source code I imported from Arduino drivers. 
-            I also suspect that using C++ instead of C increased program size. 
+            We encountered this issue early in the project due to the large amount of source code imported from Arduino drivers. 
+            (We also suspect that using C++ instead of C contributed to larger program size) 
             The remedy was to turn on compiler optimization flag -Oz, which reduced the image size by a factor of ~5. 
-            I later reencountered the size limitation when testing the jpeg decoder library, but luckily, 
-            I was able to skip the test and integrated the library straight into the project.
+            We later reencountered the size limitation when testing the jpeg decoder library, but luckily, 
+            we were able to skip the test program and integrate the library straight into the project.
 
             <h2 style="font-size: 20px">JPEG vs bitmap:</h2>
             Bitmap is the most intuitive representation of an image since each pixel of the image corresponds to 2 bytes. 
-            However, this makes bitmap files very large, too large to fit into Nucleo’s 128KB SRAM (a 320x240 bitmap image is at least 150KB).
-            JPEG is much much smaller with an average size of 6KB for the same 320x240 image. 
+            However, bitmap's convenience makes their filesize large, too large to fit into Nucleo’s 128KB SRAM (a 320x240 bitmap image is at least 150KB).
+            JPEG is much much smaller with an average size of 7KB for the same 320x240 image. 
             This allows the JPEG image to be stored as a contiguous array in memory. 
             The data from the array is used to write the image file to disk. 
             The LCD, however, can only display bitmap images. As a result, the JPEG array must be decoded into bitmap before getting
             displayed on the LCD. Because the entire bitmap array cannot fit into memory,
-            the decoder library decodes the entire JPEG array by decoding smaller blocks.
+            the decoder library decodes the entire JPEG array by using smaller blocks.
             </p>
             <h2>Contact Info</h2>
             <p>maxwelljung@ucsb.edu</p>
